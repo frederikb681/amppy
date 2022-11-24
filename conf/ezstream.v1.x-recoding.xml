@@ -1,0 +1,110 @@
+<!--
+  EXAMPLE: A configuration with ezstream 1.x syntax
+	On the basis of ezstream full.xml
+Modify as you wish with the full xml in the background
+Note that there currently is a bug with the encoder.
+Author of this file Frederik Boersma
+  -->
+<!-- Ezstream configuration root element -->
+<ezstream>>
+<!--
+    Server configuration
+  -->
+
+<servers>
+    <server>
+	  <!-- Identifying name (default: "default") -->
+      <name>Test Server</name>
+      <hostname>127.0.0.1</hostname>
+      <!-- Server port (default: 8000) -->
+		 <port>8000</port>
+      <!-- Login user (default: "source") -->
+      <user>source</user>
+      <!-- Login password (check file permissions, or everyone can see this) -->
+      <password>hackme</password>
+    </server>
+</servers>
+
+<streams>
+   <stream>
+       <mountpoint>/yourmountpoint</mountpoint>
+       <format>MP3</format>
+       <!-- Name of the intake entry to use (default: "default") -->
+         <intake>Default</intake>
+       <!-- Encoder name (defined below) to use for (re)encoding --
+<!-- 
+**possible bug in encoding**
+using Lame as the encoder causes "sh: 1: Syntax error: Unterminated quoted string
+ezstream[2102]: shout_set_metadata: No error"
+Even when the decoder and encoder parameters are from the official xml file
+The whole idea of the ezstream 1.x xml configuration is that depending on the extension a decoder is automatically chosen
+Then an encoder is needed to encode according to the stream type of the mount point
+It's just a little undocumented how this works.
+And so, even buggy.
+Without the encoder nevertheless ezstream happily processes the m3u file with Madplay
+And stream with 128kbit which was exactly the reason why to re-encode.
+and since it will be mp3 in and mp3 out I do not have a problem.
+For mp3 in and ogg out the encoder definition might work - not tested.
+-->
+     <!--<encoder>Lame</encoder> -->
+     
+      <!-- Various other informational settings -->
+      <stream_name>MyradioStation</stream_name>
+      <stream_url>http://localhost:8000/</stream_url>
+      <stream_genre>Jazz</stream_genre>
+      <stream_description>Jazz allover</stream_description>
+      <stream_quality>2</stream_quality>
+      <stream_bitrate>128</stream_bitrate>
+      <stream_samplerate>44100</stream_samplerate>
+      <stream_channels>1</stream_channels>
+   </stream>
+</streams>
+
+<intakes>
+  <intake>
+      <!-- Identifying name; default: "default" -->
+      <name>Default</name>
+
+      <!-- Media type: autodetect, file, playlist, program, stdin -->
+      <type>playlist</type>
+
+      <!-- Input file, program name, or "stdin" keyword -->
+        <filename>/home/myuser/Streaming/playlist.m3u</filename>
+
+      <!-- Setting to shuffle playlists -->
+      <shuffle>No</shuffle>
+
+      <!-- Setting whether to stream intake indefinitely or only once -->
+      <stream_once>Yes</stream_once>
+         
+    </intake>
+</intakes>
+
+ <!--
+    Decoder configurations
+    -->
+<decoders>
+  <decoder>
+      <!-- Decoder name -->
+      <name>Madplay</name>
+      <!-- Program and options -->
+      <program>madplay -b 16 -R 44100 -S -o raw:- "@T@</program>
+      <!-- File extensions to use this decoder for -->
+      <file_ext>.mp3</file_ext>
+  </decoder>
+</decoders>
+
+  <!--
+    Encoder configurations
+    -->
+<encoders>
+  <encoder>
+      <!-- Encoder name -->
+      <name>Lame</name>
+      <!-- Output stream format -->
+      <format>MP3</format>
+      <!-- Program and options -->
+      <program>lame --preset cbr 128 -r -s 44.1 --bitwidth 16 - -</program>
+  </encoder>
+ </encoders>
+</ezstream>
